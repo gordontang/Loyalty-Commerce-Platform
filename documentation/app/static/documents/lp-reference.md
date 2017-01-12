@@ -7,12 +7,13 @@ This document describes the RESTful API services a Loyalty Partner must implemen
 
 ## Introducing the Loyalty Partner API
 
-As a Loyalty Partner (LP), you can integrate with the LCP and all its applications with four simple calls.
+As a Loyalty Partner (LP), you can integrate with the LCP and all its applications with these simple calls.
 
 1. Member Validation
 1. Credit/Debit Posting
 1. Transfer Points to/from a member's account
 1. Transaction Retry (posting or transfer)
+1. Transaction Reversal
 1. Single Sign On (SSO)
 
 ![LP API](static/images/lp-overview.png)
@@ -66,7 +67,7 @@ Sample MV request from applications via the LCP:
     {
       "firstName": "John",
       "lastName": "Doe",
-      "memberId": "1234"
+      "memberId": "A1234567890"
     }
 
 A successful MV response from you will include member details similar to those below if the member exists and is valid for use. You can return additional data to applications on the LCP to enable them to offer personalized loyalty experiences to consumers (e.g. targeted offers).
@@ -74,9 +75,10 @@ A successful MV response from you will include member details similar to those b
     200 OK
     {
      "status": "success",
-     "memberId": "1234",
+     "memberId": "A1234567890",
      "accountCreationDate": "2015-12-31",
      "countryCode": "CA",
+     "cobrand": "XYZ Co"
      "balance": 200000,
      "membershipLevel": "Gold",
      "accountStatus": "Active",
@@ -154,30 +156,14 @@ Sample posting request from applications via the LCP:
     {
        "callback": "https://lcp.points.com/v1/lps/<lp-id>/credits/<id>",
        "amount": 100,
-       "bonus": true|false,
+       "bonus": false,
        "order" : {
-          "orderType": "EARN",
+          "orderType": "GIFT",
           "createdAt": "2014-11-25T15:24:00.000000Z",      
-          "confirmationNumber": "12345",
-          "data": {
-               "recipient": {
-                    "email": "john@gmail.com", 
-                    "firstName": "John", 
-                    "lastName": "Doe", 
-                    "memberId": "12345678901"
-                }, 
-                "user": {
-                    "balance": 3800, 
-                    "email": "jill@gmail.com", 
-                    "firstName": "Jill", 
-                    "lastName": "Doe", 
-                    "memberId": "12345678902",
-                    "membershipLevel": ""
-                }
-          }
+          "confirmationNumber": "12345"
        },
-       "pic": "EARNMALL",
-       "memberId": "1234"
+       "pic": "POINTSGIFT",
+       "memberId": "A1234567890"
     }
 
 A posting response returns the **transactionId** and the **status**. In case of a *failure*, the response must also include a **statusMessage**. The **transactionId** is useful for troubleshooting with the Points support team and [transaction retries](./?doc=lp-reference#retry-a-transaction).
@@ -270,10 +256,10 @@ Sample point transfer request from applications via the LCP:
        },
        "pic": "EARNMALL",
        "member": {
-          "memberId": "1234"
+          "memberId": "A1234567890"
        },
        "recipient": {
-          "memberId": "1234"
+          "memberId": "B1234567890"
        }
     }
 
